@@ -11,6 +11,10 @@ import { ServerConnection } from '../serverconnection';
  * The url for the lab workspaces service.
  */
 const SERVICE_WORKSPACES_URL = 'api/workspaces';
+async function logError(response: any) {
+  console.log('RESPONSE:', response);
+  console.log('TEXT:', await response.text());
+}
 
 /**
  * The workspaces API service manager.
@@ -43,9 +47,11 @@ export class WorkspaceManager extends DataConnector<Workspace.IWorkspace> {
     const { makeRequest, ResponseError } = ServerConnection;
     const base = baseUrl + pageUrl;
     const url = Private.url(base, id);
+    console.log(`FETCH WORKSPACE ${id}, url=${url}`);
     const response = await makeRequest(url, {}, serverSettings);
 
     if (response.status !== 200) {
+      await logError(response);
       throw new ResponseError(response);
     }
 
@@ -63,9 +69,11 @@ export class WorkspaceManager extends DataConnector<Workspace.IWorkspace> {
     const { makeRequest, ResponseError } = ServerConnection;
     const base = baseUrl + pageUrl;
     const url = Private.url(base, '');
+    console.log(`LIST WORKSPACES url=${url}`);
     const response = await makeRequest(url, {}, serverSettings);
 
     if (response.status !== 200) {
+      await logError(response);
       throw new ResponseError(response);
     }
 
@@ -87,10 +95,12 @@ export class WorkspaceManager extends DataConnector<Workspace.IWorkspace> {
     const { makeRequest, ResponseError } = ServerConnection;
     const base = baseUrl + pageUrl;
     const url = Private.url(base, id);
+    console.log(`DELETE WORKSPACE ${id}, url=${url}`);
     const init = { method: 'DELETE' };
     const response = await makeRequest(url, init, serverSettings);
 
     if (response.status !== 204) {
+      await logError(response);
       throw new ResponseError(response);
     }
   }
@@ -110,10 +120,15 @@ export class WorkspaceManager extends DataConnector<Workspace.IWorkspace> {
     const { makeRequest, ResponseError } = ServerConnection;
     const base = baseUrl + pageUrl;
     const url = Private.url(base, id);
+    console.log(
+      `SAVE (PUT) WORKSPACE ${id}, url=${url}, workspace=`,
+      workspace
+    );
     const init = { body: JSON.stringify(workspace), method: 'PUT' };
     const response = await makeRequest(url, init, serverSettings);
 
     if (response.status !== 204) {
+      await logError(response);
       throw new ResponseError(response);
     }
   }
