@@ -429,18 +429,25 @@ function addCommands(
     }
   });
 
+  let count = 0
   commands.addCommand(CommandIDs.navigate, {
     execute: args => {
       const path = (args.path as string) || '';
+      if(path.endsWith("/lab/lab/lab/"))
+        return;
+      console.info("FILE BROWSER OPENING:",args)
       Private.navigateToPath(path, factory)
         .then(() => {
+          console.info("GOT IT")
           commands.execute('docmanager:open', { path });
         })
         .catch((reason: any) => {
-          console.warn(
-            `${CommandIDs.navigate} failed to open: ${path}`,
-            reason
-          );
+          count = count + 1
+          if ( count < 5 )
+            console.warn(
+              `${CommandIDs.navigate} failed to open [count:${count}]: ${path}`,
+              reason
+            );
         });
     }
   });

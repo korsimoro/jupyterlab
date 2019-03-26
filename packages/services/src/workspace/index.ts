@@ -11,9 +11,13 @@ import { ServerConnection } from '../serverconnection';
  * The url for the lab workspaces service.
  */
 const SERVICE_WORKSPACES_URL = 'api/workspaces';
+let count = 0
 async function logError(response: any) {
-  console.log('RESPONSE:', response);
-  console.log('TEXT:', await response.text());
+  count = count + 1
+  if (count < 100) {
+    console.log('RESPONSE:', response);
+    console.log('TEXT:', await response.text());
+  }
 }
 
 /**
@@ -115,6 +119,12 @@ export class WorkspaceManager extends DataConnector<Workspace.IWorkspace> {
    * @returns A promise that resolves if successful.
    */
   async save(id: string, workspace: Workspace.IWorkspace): Promise<void> {
+    if ( count > 10)
+      return
+    if (id == '') {
+      count = 50
+      throw new Error("SAVE CALLED WITH EMPTY ID" + workspace)
+    }
     const { serverSettings } = this;
     const { baseUrl, pageUrl } = serverSettings;
     const { makeRequest, ResponseError } = ServerConnection;

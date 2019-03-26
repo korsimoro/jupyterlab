@@ -361,6 +361,7 @@ function addCommands(
 
   commands.addCommand(CommandIDs.open, {
     execute: args => {
+      console.info("DOC MANAGER OPENING:",args)
       const path =
         typeof args['path'] === 'undefined' ? '' : (args['path'] as string);
       const factory = (args['factory'] as string) || void 0;

@@ -334,7 +334,7 @@ const state: JupyterFrontEndPlugin<IStateDB> = {
 
     const { commands, serviceManager } = app;
     const { workspaces } = serviceManager;
-    const workspace = resolver.name;
+    const workspace = "default-workspace"; //resolver.name;
     const transform = new PromiseDelegate<StateDB.DataTransform>();
     const db = new StateDB({
       namespace: app.namespace,
@@ -360,12 +360,14 @@ const state: JupyterFrontEndPlugin<IStateDB> = {
           } catch (error) {
             console.warn('Clearing local storage failed.', error);
 
+            console.info("saveState - position 33AA")
             // To give the user time to see the console warning before redirect,
             // do not set the `immediate` flag.
             return commands.execute(CommandIDs.saveState);
           }
         }
 
+        console.info("saveState - position AB12")
         return commands.execute(CommandIDs.saveState, { immediate });
       }
     });
@@ -377,9 +379,10 @@ const state: JupyterFrontEndPlugin<IStateDB> = {
     commands.addCommand(CommandIDs.saveState, {
       label: () => `Save Workspace (${workspace})`,
       execute: ({ immediate }) => {
-        const timeout = immediate ? 0 : WORKSPACE_SAVE_DEBOUNCE_INTERVAL;
+        const timeout = immediate ? 10000 : WORKSPACE_SAVE_DEBOUNCE_INTERVAL;
         const id = workspace;
         const metadata = { id };
+        console.info("saveState invoked, immediate",immediate,"id=",id,"conflated=",conflated,"timeout=",timeout)
 
         // Only instantiate a new conflated promise if one is not outstanding.
         if (!conflated) {
@@ -391,6 +394,7 @@ const state: JupyterFrontEndPlugin<IStateDB> = {
         }
 
         debouncer = window.setTimeout(async () => {
+          console.info("In debouncer")
           // Prevent a race condition between the timeout and saving.
           if (!conflated) {
             return;
@@ -399,9 +403,12 @@ const state: JupyterFrontEndPlugin<IStateDB> = {
           const data = await db.toJSON();
 
           try {
+            console.info("Saving workspace in debounce")
             await workspaces.save(id, { data, metadata });
+            console.info("Saved, resolving")
             conflated.resolve(undefined);
           } catch (error) {
+            console.info("Rejected",error)
             conflated.reject(error);
           }
           conflated = null;
@@ -412,6 +419,7 @@ const state: JupyterFrontEndPlugin<IStateDB> = {
     });
 
     const listener = (sender: any, change: StateDB.Change) => {
+      console.info("Saving due to state change from",sender,"change=",change)
       commands.execute(CommandIDs.saveState);
     };
 
@@ -469,6 +477,7 @@ const state: JupyterFrontEndPlugin<IStateDB> = {
           delete query['clone'];
 
           const url = path + URLExt.objectToQueryString(query) + hash;
+          console.info("saveState - position 1234")
           const cloned = commands
             .execute(CommandIDs.saveState, { immediate })
             .then(() => router.stop);
@@ -481,6 +490,7 @@ const state: JupyterFrontEndPlugin<IStateDB> = {
           return cloned;
         }
 
+        console.info("saveState - position ABCD")
         // After the state database has finished loading, save it.
         return commands.execute(CommandIDs.saveState, { immediate });
       }
