@@ -429,21 +429,25 @@ function addCommands(
     }
   });
 
-  let count = 0
+  let count = 0;
+  let count2 = 0;
   commands.addCommand(CommandIDs.navigate, {
     execute: args => {
       const path = (args.path as string) || '';
-      if(path.endsWith("/lab/lab/lab/"))
-        return;
-      console.info("FILE BROWSER OPENING:",args)
+      if (path.endsWith('/lab/lab/lab/')) return;
+      if (path.endsWith('index.html')) {
+        count2 = count2 + 1;
+        if (count2 == 2) throw new Error('WHY IS THIS BEING OPENED');
+      }
+      console.info('FILE BROWSER OPENING:', args);
       Private.navigateToPath(path, factory)
         .then(() => {
-          console.info("GOT IT")
+          console.info('GOT IT');
           commands.execute('docmanager:open', { path });
         })
         .catch((reason: any) => {
-          count = count + 1
-          if ( count < 5 )
+          count = count + 1;
+          if (count < 5)
             console.warn(
               `${CommandIDs.navigate} failed to open [count:${count}]: ${path}`,
               reason
@@ -884,6 +888,9 @@ namespace Private {
     const { services } = browserForPath.model.manager;
     const localPath = services.contents.localPath(path);
 
+    console.info('FILE BROWSER ATTEMPTING TO NAVIGATE');
+    console.info('PATH=', path);
+    console.info('LOCAL PATH=', localPath);
     return services.ready
       .then(() => services.contents.get(path, { content: false }))
       .then(value => {

@@ -988,6 +988,8 @@ export class Drive implements Contents.IDrive {
     options?: Contents.IFetchOptions
   ): Promise<Contents.IModel> {
     let url = this._getUrl(localPath);
+    console.log('DRIVE GET:', localPath, url, options);
+    if (localPath.startsWith('/home')) throw new Error('DRIVE GET' + localPath);
     if (options) {
       // The notebook type cannot take an format option.
       if (options.type === 'notebook') {

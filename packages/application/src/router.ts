@@ -222,21 +222,32 @@ export class Router implements IRouter {
     const url =
       path && path.indexOf(base) === 0 ? path : URLExt.join(base, path);
 
+    console.info('NAVIGATE - REPLACING HISTORY - URL', url);
+    console.info('NAVIGATE - REPLACING HISTORY - BASE', base);
+    console.info('NAVIGATE - REPLACING HISTORY - PATH', path);
+    console.info('NAVIGATE - REPLACING HISTORY - OPT', options);
+
+    console.info('NAV1:', window.location.href);
     if (silent) {
       history.replaceState({}, '', url);
     } else {
       history.pushState({}, '', url);
     }
+    console.info('NAV2:', window.location.href);
 
     if (hard) {
+      console.info('HARD');
       return this.reload();
     }
 
+    /*
     // Because a `route()` call may still be in the stack after having received
     // a `stop` token, wait for the next stack frame before calling `route()`.
     requestAnimationFrame(() => {
+      console.info("CALLING ROUTE:",window.location.href)
       this.route();
     });
+    */
   }
 
   /**
@@ -251,6 +262,7 @@ export class Router implements IRouter {
     const rank = 'rank' in options ? options.rank : 100;
     const rules = this._rules;
 
+    console.info('MATCHED', command, 'to pattern', pattern);
     rules.set(pattern, { command, rank });
 
     return new DisposableDelegate(() => {
@@ -273,6 +285,7 @@ export class Router implements IRouter {
    * match the `IRouter.ILocation` interface.
    */
   route(): Promise<void> {
+    console.info('ROUTE', window.location.href);
     const { commands, current, stop } = this;
     const { request } = current;
     const routed = this._routed;
@@ -301,6 +314,7 @@ export class Router implements IRouter {
 
       const { command } = queue.pop();
 
+      console.info('QUEUE:', command, queue);
       commands
         .execute(command, current)
         .then(result => {
