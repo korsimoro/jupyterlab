@@ -221,7 +221,7 @@ function activateFactory(
     widget.toolbar.insertItem(0, 'launch', launcher);
 
     // Track the newly created file browser.
-    tracker.add(widget);
+    void tracker.add(widget);
 
     return widget;
   };
@@ -259,17 +259,17 @@ function activateBrowser(
   labShell.add(browser, 'left', { rank: 100 });
 
   // If the layout is a fresh session without saved data, open file browser.
-  labShell.restored.then(layout => {
+  void labShell.restored.then(layout => {
     if (layout.fresh) {
-      commands.execute(CommandIDs.showBrowser, void 0);
+      void commands.execute(CommandIDs.showBrowser, void 0);
     }
   });
 
-  Promise.all([app.restored, browser.model.restored]).then(() => {
+  void Promise.all([app.restored, browser.model.restored]).then(() => {
     function maybeCreate() {
       // Create a launcher if there are no open items.
       if (labShell.isEmpty('main')) {
-        Private.createLauncher(commands, browser);
+        void Private.createLauncher(commands, browser);
       }
     }
 
@@ -280,7 +280,7 @@ function activateBrowser(
 
     let navigateToCurrentDirectory: boolean = false;
 
-    settingRegistry
+    void settingRegistry
       .load('@jupyterlab/filebrowser-extension:browser')
       .then(settings => {
         settings.changed.connect(settings => {
@@ -430,20 +430,12 @@ function addCommands(
   });
 
   let count = 0;
-  let count2 = 0;
   commands.addCommand(CommandIDs.navigate, {
     execute: args => {
       const path = (args.path as string) || '';
-      if (path.endsWith('/lab/lab/lab/')) return;
-      if (path.endsWith('index.html')) {
-        count2 = count2 + 1;
-        if (count2 == 2) throw new Error('WHY IS THIS BEING OPENED');
-      }
-      console.info('FILE BROWSER OPENING:', args);
-      Private.navigateToPath(path, factory)
+      return Private.navigateToPath(path, factory)
         .then(() => {
-          console.info('GOT IT');
-          commands.execute('docmanager:open', { path });
+          return commands.execute('docmanager:open', { path });
         })
         .catch((reason: any) => {
           count = count + 1;

@@ -245,7 +245,7 @@ export class Router implements IRouter {
     // a `stop` token, wait for the next stack frame before calling `route()`.
     requestAnimationFrame(() => {
       console.info("CALLING ROUTE:",window.location.href)
-      this.route();
+      void this.route();
     });
     */
   }
