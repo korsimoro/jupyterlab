@@ -123,6 +123,7 @@ export class ThemeManager {
    * @returns A disposable that can be used to unregister the theme.
    */
   register(theme: ThemeManager.ITheme): IDisposable {
+    console.info('Register Theme', theme);
     const { name } = theme;
     const themes = this._themes;
 
@@ -242,8 +243,10 @@ export class ThemeManager {
     // Unload the previously loaded theme.
     const old = current ? themes[current].unload() : Promise.resolve();
 
+    console.info('PROMISES', old, themes[theme]);
     return Promise.all([old, themes[theme].load()])
       .then(() => {
+        console.info('THEME', theme);
         this._current = theme;
         Private.fitAll(this._host);
         splash.dispose();
@@ -254,6 +257,7 @@ export class ThemeManager {
         });
       })
       .catch(reason => {
+        console.info('REASON', reason);
         this._onError(reason);
         splash.dispose();
       });

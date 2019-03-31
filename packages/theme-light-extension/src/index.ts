@@ -15,6 +15,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
   id: '@jupyterlab/theme-light-extension:plugin',
   requires: [IThemeManager],
   activate: (app: JupyterFrontEnd, manager: IThemeManager) => {
+    console.info('ACTIVATING THEME');
     const style = '@jupyterlab/theme-light-extension/index.css';
 
     manager.register({
